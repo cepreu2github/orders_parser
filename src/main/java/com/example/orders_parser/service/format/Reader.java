@@ -38,7 +38,7 @@ public abstract class Reader {
 
     public Stream<Line> lines(){
         AtomicLong index = new AtomicLong(0);
-        return reader.lines().map((line) -> new Line(index.incrementAndGet(), line, fileName));
+        return reader.lines().map(line -> new Line(index.incrementAndGet(), line, fileName));
     }
 
 }

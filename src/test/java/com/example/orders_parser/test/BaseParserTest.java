@@ -1,10 +1,11 @@
 package com.example.orders_parser.test;
 
-import com.example.orders_parser.service.GreetingService;
+import com.example.orders_parser.service.parser.BaseParser;
 import com.example.orders_parser.service.parser.CompletableFutureParser;
 import com.example.orders_parser.service.parser.OrderParseException;
 import com.example.orders_parser.test.mocks.ListPrinter;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 
 import static com.example.orders_parser.test.TestUtils.getPathInTests;
 import static com.example.orders_parser.test.TestUtils.getResourceContents;
@@ -28,36 +30,39 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * most base use case
  */
+@Tag("func")
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestSpringConfiguration.class)
 class BaseParserTest {
 
     @Autowired
-    private GreetingService greetingService;
-    @Autowired
     private ListPrinter out;
     @Autowired
-    private ApplicationContext appContext;
+    ApplicationContext appContext;
 
     @AfterEach
     void clenup(){
         out.lines.clear();
     }
 
-    private ExecutorService getThreadPool(){
-        return Executors.newFixedThreadPool(8);
+    ExecutorService getThreadPool(){
+        return ForkJoinPool.commonPool();
     }
 
-    private CompletableFutureParser createParser(String... files){
+    protected BaseParser getParserBean(List<String> inFiles, ExecutorService threadPool){
+        return appContext.getBean(CompletableFutureParser.class, inFiles, getThreadPool());
+    }
+
+    private BaseParser createParser(String... files){
         List<String> realFiles = new ArrayList<>();
         for (String fileName: files){
             realFiles.add(getPathInTests(fileName));
         }
-        return appContext.getBean(CompletableFutureParser.class, realFiles, getThreadPool());
+        return getParserBean(realFiles, getThreadPool());
     }
 
     private void baseTest(String result, String... inputs) throws IOException{
-        CompletableFutureParser parser = createParser(inputs);
+        BaseParser parser = createParser(inputs);
         parser.parse();
         List<String> expected = getResourceContents(result);
         assertLinesMatch(expected, out.lines);
@@ -76,10 +81,11 @@ class BaseParserTest {
 
     @Test
     void notExistFile() {
-        CompletableFutureParser parser = new CompletableFutureParser(Arrays.asList("noSuchFile.csv",
+        BaseParser parser = getParserBean(Arrays.asList("noSuchFile.csv",
                 "complexTest2.csv"), getThreadPool());
         try{
             parser.parse();
+            assertTrue(false, "Exception not raise");
         } catch (OrderParseException e){
             assertTrue(e.getRootCause().getMessage().contains("noSuchFile.csv"));
         }
@@ -92,16 +98,17 @@ class BaseParserTest {
 
     @Test
     void emptyListOfFiles() {
-        CompletableFutureParser parser = createParser();
+        BaseParser parser = createParser();
         parser.parse();
         assertEquals("No files provided.", out.lines.get(0));
     }
 
     @Test
     void unsupportedExtension() {
-        CompletableFutureParser parser = new CompletableFutureParser(Arrays.asList("wtf.exe"), getThreadPool());
+        BaseParser parser = getParserBean(Collections.singletonList("wtf.exe"), getThreadPool());
         try{
             parser.parse();
+            assertTrue(false, "Exception not raise");
         } catch (OrderParseException e){
             assertTrue(e.getRootCause().getMessage().contains("unknown file type"));
         }
@@ -109,9 +116,10 @@ class BaseParserTest {
 
     @Test
     void noExtension() {
-        CompletableFutureParser parser = new CompletableFutureParser(Arrays.asList("justfile"), getThreadPool());
+        BaseParser parser = getParserBean(Collections.singletonList("justfile"), getThreadPool());
         try{
             parser.parse();
+            assertTrue(false, "Exception not raise");
         } catch (OrderParseException e){
             assertTrue(e.getRootCause().getMessage().contains("unknown file type"));
         }

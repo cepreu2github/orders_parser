@@ -11,7 +11,7 @@ import org.openjdk.jmh.runner.options.TimeValue;
 /**
  * benchmarks runner. Use to simplify run JMH instead of console run.
  */
-@Tag("slow")
+@Tag("perf")
 class BenchmarkTest {
 
     @Test

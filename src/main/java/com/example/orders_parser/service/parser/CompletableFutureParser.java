@@ -21,16 +21,9 @@ import java.util.stream.Stream;
  */
 @Service
 @Scope("prototype")
-public class CompletableFutureParser {
-    @Autowired
-    private Printer out;
-
-    private List<String> inFiles;
-    private ExecutorService threadPool;
-
+public class CompletableFutureParser extends BaseParser{
     public CompletableFutureParser(List<String> inFiles, ExecutorService threadPool){
-        this.inFiles = inFiles;
-        this.threadPool = threadPool;
+        super(inFiles, threadPool);
     }
 
     private CompletableFuture<Void> printAll(Stream<CompletableFuture<Result>> list) {
@@ -48,37 +41,9 @@ public class CompletableFutureParser {
                 });
     }
 
-    private String fakeProcessor(String input){
-        try {
-            Thread.sleep(100 + new Random().nextInt(300));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        return input;
-    }
-
-    public void parse(){
-        if (inFiles.isEmpty()){
-            out.println("No files provided.");
-            return;
-        }
-        try {
-            parseReally();
-        } catch (ExecutionException e) {
-            if (e.getCause() instanceof OrderParseException){
-                throw new OrderParseException(e);
-            } else {
-                throw new OrderParseUnknownException(e);
-            }
-        } catch (InterruptedException e) {
-            throw new OrderParseUnknownException(e);
-        } finally {
-            threadPool.shutdown();
-        }
-    }
-
-    private void parseReally() throws ExecutionException, InterruptedException {
-        inFiles.stream().map((fileName) -> CompletableFuture.supplyAsync(() -> {
+    @Override
+    protected void parseReally() throws ExecutionException, InterruptedException {
+        inFiles.stream().map(fileName -> CompletableFuture.supplyAsync(() -> {
             try {
                 return ReaderFactory.getReader(fileName);
             } catch (FileNotFoundException e) {
@@ -87,21 +52,20 @@ public class CompletableFutureParser {
                 throw new OrderParseException("unknown file type " + fileName);
             }
         }, threadPool))
-                .map((promisedReader) ->
-                        promisedReader.thenApplyAsync((reader) ->
+                .map(promisedReader ->
+                        promisedReader.thenApplyAsync(reader ->
                                 reader.lines()
-                                        .map((line) ->
+                                        .map(line ->
                                                 CompletableFuture.supplyAsync(() ->
                                                         reader.parseLine(line), threadPool))
                                         .collect(Collectors.toList()) // to prevent stream laziness issue (late Futures creation)
                                         .stream()))
                 .reduce((allPromisedLists, nextPromisedList) ->
                         allPromisedLists.thenComposeAsync((list) ->
-                                printAll(list).thenComposeAsync((v) ->
+                                printAll(list).thenComposeAsync(v ->
                                         nextPromisedList)))
-                .get()
+                .orElseThrow(() -> new RuntimeException("empty file list check should prevent that to happen"))
                 .thenComposeAsync(this::printAll).get();
-        threadPool.shutdown();
     }
 
 }

@@ -1,13 +1,10 @@
 package com.example.orders_parser;
 
-import com.example.orders_parser.service.parser.Parser;
+import com.example.orders_parser.service.parser.CompletableFutureParser;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import com.example.orders_parser.service.GreetingService;
-
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.logging.Handler;
@@ -23,7 +20,7 @@ public class App {
 		setGlobalLogLevel(Level.WARNING);
 		String basePackage = "com.example.orders_parser.service";
 		try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(basePackage)) {
-			Parser parser = context.getBean(Parser.class, Arrays.asList(args), Executors.newFixedThreadPool(8));
+			CompletableFutureParser parser = context.getBean(CompletableFutureParser.class, Arrays.asList(args), Executors.newFixedThreadPool(8));
 			parser.parse();
 		}
 	}

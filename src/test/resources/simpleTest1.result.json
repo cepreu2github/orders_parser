@@ -1,6 +1,6 @@
-1,100,USD,оплата заказа
-2,100,USD,оплата заказа
-1,100,USD,оплата заказа
-2,100,USD,оплата заказа
-{"orderId":1,"amount":100,"currency":"USD","comment":"оплата заказа"}
-{"orderId":2,"amount":100,"currency":"USD","comment":"оплата заказа"}
+{"id":1,"amount":100,"comment":"оплата заказа","filename":"simpleTest1.csv","line":1,"result":"OK"}
+{"id":2,"amount":100,"comment":"оплата заказа","filename":"simpleTest1.csv","line":2,"result":"OK"}
+{"id":1,"amount":100,"comment":"оплата заказа","filename":"simpleTest2.csv","line":1,"result":"OK"}
+{"id":2,"amount":100,"comment":"оплата заказа","filename":"simpleTest2.csv","line":2,"result":"OK"}
+{"id":1,"amount":100,"comment":"оплата заказа","filename":"simpleTest1.json","line":1,"result":"OK"}
+{"id":2,"amount":100,"comment":"оплата заказа","filename":"simpleTest1.json","line":2,"result":"OK"}

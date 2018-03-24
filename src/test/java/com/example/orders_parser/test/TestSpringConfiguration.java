@@ -1,6 +1,7 @@
 package com.example.orders_parser.test;
 
-import com.example.orders_parser.service.PrinterService;
+import com.example.orders_parser.service.base.Printer;
+import com.example.orders_parser.test.mocks.ListPrinter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +16,8 @@ class TestSpringConfiguration {
 
     @Bean
     @Primary
-    PrinterService printerService(){
-        return new ListPrinterService();
+    Printer printerService(){
+        return new ListPrinter();
     }
 
 }

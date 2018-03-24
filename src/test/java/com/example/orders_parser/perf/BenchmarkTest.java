@@ -1,5 +1,6 @@
 package com.example.orders_parser.perf;
 
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -10,6 +11,7 @@ import org.openjdk.jmh.runner.options.TimeValue;
 /**
  * benchmarks runner. Use to simplify run JMH instead of console run.
  */
+@Tag("slow")
 class BenchmarkTest {
 
     @Test

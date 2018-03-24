@@ -1,7 +1,6 @@
 package com.example.orders_parser.service;
 
-import java.util.logging.Logger;
-
+import com.example.orders_parser.service.base.Printer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +8,7 @@ import org.springframework.stereotype.Service;
 public class GreetingService {
 
     @Autowired
-    private PrinterService out;
+    private Printer out;
 
 	public void greet() {
 		out.println("Hello from GreetingService!");

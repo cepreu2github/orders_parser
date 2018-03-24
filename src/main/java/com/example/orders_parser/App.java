@@ -1,10 +1,15 @@
 package com.example.orders_parser;
 
+import com.example.orders_parser.service.parser.Parser;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import com.example.orders_parser.service.GreetingService;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -14,12 +19,12 @@ import java.util.logging.Logger;
  * entry point for console run
  */
 public class App {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ExecutionException, InterruptedException {
 		setGlobalLogLevel(Level.WARNING);
 		String basePackage = "com.example.orders_parser.service";
 		try (ConfigurableApplicationContext context = new AnnotationConfigApplicationContext(basePackage)) {
-			GreetingService greetingService = context.getBean(GreetingService.class);
-			greetingService.greet();
+			Parser parser = context.getBean(Parser.class, Arrays.asList(args), Executors.newFixedThreadPool(8));
+			parser.parse();
 		}
 	}
 

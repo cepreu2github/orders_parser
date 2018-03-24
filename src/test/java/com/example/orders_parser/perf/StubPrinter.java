@@ -1,6 +1,6 @@
 package com.example.orders_parser.perf;
 
-import com.example.orders_parser.service.PrinterService;
+import com.example.orders_parser.service.base.Printer;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @Primary
-public class StubPrinterService implements PrinterService {
+public class StubPrinter implements Printer {
     @Override
     public synchronized void println(String line) { // Synchronized to emulate real console multithreading influence.
                                                     // according to https://stackoverflow.com/a/10468250

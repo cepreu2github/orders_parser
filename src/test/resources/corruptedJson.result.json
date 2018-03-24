@@ -1,0 +1,5 @@
+{"filename":"corruptedJson.json","line":1,"result":"com.google.gson.stream.MalformedJsonException: Unexpected value at line 1 column 24 path $.amount"}
+{"filename":"corruptedJson.json","line":2,"result":"java.lang.IllegalStateException: Expected BEGIN_OBJECT but was STRING at line 1 column 2 path $"}
+{"filename":"corruptedJson.json","line":3,"result":"java.lang.NumberFormatException: For input string: \"so MANY!!!\""}
+{"filename":"corruptedJson.json","line":4,"result":"required field not exist in input"}
+{"id":4,"amount":100,"comment":"оплата заказа","filename":"corruptedJson.json","line":5,"result":"OK"}

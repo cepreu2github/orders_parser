@@ -23,12 +23,26 @@ public class CsvReader extends Reader {
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public Result parseLine(Line line) {
-        CsvToBean csv = new CsvToBean();
-        CSVReader csvReader = new CSVReader(new StringReader(line.getLine()));
-        List<InputObject> list = csv.parse(setColumMapping(), csvReader);
-        InputObject in = list.get(0);
-        return new Result(in.getOrderId(), in.getAmount(), in.getComment(),
-                line.getFileName(), line.getLineNumber(), "OK");
+        try{
+            CsvToBean csv = new CsvToBean();
+            CSVReader csvReader = new CSVReader(new StringReader(line.getLine()));
+            List<InputObject> list = csv.parse(setColumMapping(), csvReader);
+            if (list.isEmpty()){
+                throw new NullPointerException();
+            }
+            InputObject in = list.get(0);
+            in.check();
+            return new Result(in.getOrderId(), in.getAmount(), in.getComment(),
+                    line.getFileName(), line.getLineNumber(), "OK");
+        } catch (RuntimeException e){
+            String message = e.getMessage();
+            if (e.getCause() != null){
+                message = e.getCause().getMessage();
+            }
+            return new Result(null, null, null,
+                    line.getFileName(), line.getLineNumber(),
+                    message != null ? message: "required field not exist in input");
+        }
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

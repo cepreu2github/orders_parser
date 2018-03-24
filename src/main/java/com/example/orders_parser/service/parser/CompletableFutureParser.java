@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
@@ -36,9 +35,17 @@ public class CompletableFutureParser {
 
     private CompletableFuture<Void> printAll(Stream<CompletableFuture<Result>> list) {
         return list.reduce((allPromisedLines, nextPromisedLine) -> allPromisedLines.thenComposeAsync((line) -> {
-                    out.println(line.toString());
-                    return nextPromisedLine;
-                })).get().thenAcceptAsync((lastLine) -> out.println(lastLine.toString()));
+            out.println(line.toString());
+            return nextPromisedLine;
+        }))
+                .map((promisedLastLine) ->
+                        promisedLastLine.thenAcceptAsync((lastLine) ->
+                                out.println(lastLine.toString())))
+                .orElseGet(() -> {
+                    CompletableFuture<Void> empty = new CompletableFuture<>();
+                    empty.complete(null);
+                    return empty;
+                });
     }
 
     private String fakeProcessor(String input){
@@ -50,12 +57,34 @@ public class CompletableFutureParser {
         return input;
     }
 
-    public void parse() throws ExecutionException, InterruptedException {
+    public void parse(){
+        if (inFiles.isEmpty()){
+            out.println("No files provided.");
+            return;
+        }
+        try {
+            parseReally();
+        } catch (ExecutionException e) {
+            if (e.getCause() instanceof OrderParseException){
+                throw new OrderParseException(e);
+            } else {
+                throw new OrderParseUnknownException(e);
+            }
+        } catch (InterruptedException e) {
+            throw new OrderParseUnknownException(e);
+        } finally {
+            threadPool.shutdown();
+        }
+    }
+
+    private void parseReally() throws ExecutionException, InterruptedException {
         inFiles.stream().map((fileName) -> CompletableFuture.supplyAsync(() -> {
             try {
                 return ReaderFactory.getReader(fileName);
             } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
+                throw new OrderParseException(e);
+            } catch (IllegalArgumentException e) {
+                throw new OrderParseException("unknown file type " + fileName);
             }
         }, threadPool))
                 .map((promisedReader) ->
@@ -63,8 +92,8 @@ public class CompletableFutureParser {
                                 reader.lines()
                                         .map((line) ->
                                                 CompletableFuture.supplyAsync(() ->
-                                                        reader.parseLine(line), threadPool)).
-                                        collect(Collectors.toList()) // to prevent stream laziness issue (late Futures creation)
+                                                        reader.parseLine(line), threadPool))
+                                        .collect(Collectors.toList()) // to prevent stream laziness issue (late Futures creation)
                                         .stream()))
                 .reduce((allPromisedLists, nextPromisedList) ->
                         allPromisedLists.thenComposeAsync((list) ->

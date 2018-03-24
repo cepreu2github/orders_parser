@@ -1,0 +1,7 @@
+{"id":1,"amount":125,"comment":"покупка плюшевого мишки","filename":"complexTest1.csv","line":1,"result":"OK"}
+{"id":2,"amount":1299,"comment":"ПЛАЧУ ЗА ТЕЛЕФОН","filename":"complexTest1.csv","line":2,"result":"OK"}
+{"id":3,"amount":1,"comment":"","filename":"complexTest1.csv","line":3,"result":"OK"}
+{"id":3006,"amount":12,"comment":"Ого! И гривны принимает?","filename":"complexTest2.csv","line":1,"result":"OK"}
+{"id":3007,"amount":10,"comment":"don\u0027t by this again","filename":"complexTest2.csv","line":2,"result":"OK"}
+{"id":12,"amount":1000,"comment":"","filename":"complexTest1.json","line":1,"result":"OK"}
+{"id":13,"amount":205,"comment":"job payment","filename":"complexTest1.json","line":2,"result":"OK"}

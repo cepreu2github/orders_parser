@@ -4,6 +4,8 @@ import com.example.orders_parser.domain.InputObject;
 import com.example.orders_parser.domain.Line;
 import com.example.orders_parser.domain.Result;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.stream.MalformedJsonException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -21,8 +23,15 @@ public class JsonReader extends Reader {
 
     @Override
     public Result parseLine(Line line) {
-        InputObject in = gson.fromJson(line.getLine(), InputObject.class);
-        return new Result(in.getOrderId(), in.getAmount(), in.getComment(),
-                line.getFileName(), line.getLineNumber(), "OK");
+        try {
+            InputObject in = gson.fromJson(line.getLine(), InputObject.class);
+            in.check();
+            return new Result(in.getOrderId(), in.getAmount(), in.getComment(),
+                    line.getFileName(), line.getLineNumber(), "OK");
+        } catch (JsonSyntaxException | NullPointerException e) {
+            return new Result(null, null, null,
+                    line.getFileName(), line.getLineNumber(),
+                    e.getMessage() != null ? e.getMessage(): "required field not exist in input");
+        }
     }
 }

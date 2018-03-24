@@ -1,0 +1,5 @@
+{"filename":"corruptedCsv.csv","line":1,"result":"Zero length string"}
+{"filename":"corruptedCsv.csv","line":2,"result":"For input string: \"no so much\""}
+{"filename":"corruptedCsv.csv","line":3,"result":"required field not exist in input"}
+{"filename":"corruptedCsv.csv","line":4,"result":"required field not exist in input"}
+{"id":2,"amount":100,"comment":"оплата заказа","filename":"corruptedCsv.csv","line":5,"result":"OK"}
